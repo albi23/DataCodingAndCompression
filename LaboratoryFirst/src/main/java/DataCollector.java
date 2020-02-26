@@ -4,10 +4,14 @@ import java.util.Map;
 public class DataCollector {
 
     private long symbolOccurrences = 0;
-    private Map<String,Long> neighborsOccurrences = new HashMap<>();
+    private Map<Byte, Long> neighborsOccurrences = new HashMap<>();
 
     public DataCollector() {
         this.increaseSymbolOccurrences();
+    }
+
+    public DataCollector(long symbolOccurrences) {
+        this.symbolOccurrences = symbolOccurrences;
     }
 
     public void increaseSymbolOccurrences(){
@@ -22,20 +26,20 @@ public class DataCollector {
         this.symbolOccurrences = symbolOccurrences;
     }
 
-    public Map<String, Long> getNeighborsOccurrences() {
+    public Map<Byte, Long> getNeighborsOccurrences() {
         return neighborsOccurrences;
     }
 
-    public void setNeighborsOccurrences(Map<String, Long> neighborsOccurrences) {
+    public void setNeighborsOccurrences(Map<Byte, Long> neighborsOccurrences) {
         this.neighborsOccurrences = neighborsOccurrences;
     }
 
-    public void updateNeighborsOccurrences(String key) {
+    public void updateNeighborsOccurrences(Byte key) {
         final Long oldValue = neighborsOccurrences.get(key);
         neighborsOccurrences.replace(key, oldValue + 1L);
     }
 
-    public void addNewNeighbor(String key, Long value){
+    public void addNewNeighbor(Byte key, Long value){
         this.neighborsOccurrences.put(key,value);
     }
 }
