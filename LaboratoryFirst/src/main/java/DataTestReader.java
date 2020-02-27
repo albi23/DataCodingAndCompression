@@ -100,11 +100,23 @@ public class DataTestReader {
     private double calculatePartialSum(long symbolOccurrences){
         if (symbolOccurrences <= 0) return  0.0D;
         double probability = (double) symbolOccurrences / (double) allSymbolsOccurrences;
-        final double measureInformation = -Math.log(probability);
+        final double measureInformation = -log2(probability);
         return measureInformation * probability;
     }
 
-    int fromByteArray(byte[] bytes) {
-        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    double log2(double x) {
+        return Math.log(x) / Math.log(2);
+    }
+
+    public void printData(Map<Byte, DataCollector> symbolsData) {
+        symbolsData.forEach((k, v) -> {
+            System.out.print("\u001b[48;5;28m" + k + "\u001b[0m [" + String.format("%6d",v.getSymbolOccurrences()) + "]");
+            final StringBuilder stringBuilder = new StringBuilder("--> \t {");
+            v.getNeighborsOccurrences().forEach((k2, v2) -> {
+                stringBuilder.append(" \u001b[48;5;20m").append(k2).append("\u001b[0m").append('[').append(v2).append("],");
+            });
+            stringBuilder.setLength(stringBuilder.length()-1);
+            System.out.println(stringBuilder.toString().concat(" }"));
+        });
     }
 }
