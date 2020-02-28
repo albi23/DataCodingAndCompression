@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
@@ -14,10 +13,14 @@ public class DataTestReader {
     private static final String testDirectory = System.getProperty("user.dir").concat("/LaboratoryFirst/src/main/resources/testy1");
     private static final int BLOCK_SIZE = 1;
     private final Map<Byte, DataCollector> symbolsData = new HashMap<>();
-    private static long allSymbolsOccurrences;
+    private static double allSymbolsOccurrences;
 
     public DataTestReader() {
         this.collectDataFromFile(showAndSelectFileToTest());
+    }
+
+    public DataTestReader(String pathToFile) {
+        this.collectDataFromFile(pathToFile);
     }
 
     public String showAndSelectFileToTest() {
@@ -77,31 +80,26 @@ public class DataTestReader {
 
     public double countEntropy(Map<Byte, DataCollector> symbolsData) {
         double entropy = 0.0D;
+        double logFromAll = log2(allSymbolsOccurrences);
         for (DataCollector data : symbolsData.values()) {
-            entropy += calculatePartialSum(data.getSymbolOccurrences());
+            final long symbolOccurrences = data.getSymbolOccurrences();
+            if (symbolOccurrences <= 0) continue;
+            entropy += symbolOccurrences * (logFromAll - log2(symbolOccurrences));
         }
-        return entropy;
+        return entropy/allSymbolsOccurrences;
     }
 
-    public double countConditionalEntropy(Map<Byte, DataCollector> symbolsData){
+    public double countConditionalEntropy(Map<Byte, DataCollector> symbolsData) {
 
-        double conditionalEntropy = 0.0D;
-         for (Map.Entry<Byte, DataCollector> entries : symbolsData.entrySet()){
-             final DataCollector dataCollector = entries.getValue();
-             final double[] partialEntropy = {0.0};
-             dataCollector.getNeighborsOccurrences().forEach((k,v)-> partialEntropy[0] +=calculatePartialSum(v));
-             final double signProbability = (double) dataCollector.getSymbolOccurrences() / (double) allSymbolsOccurrences;
-             conditionalEntropy += signProbability* partialEntropy[0];
-         }
-         return conditionalEntropy;
-
-    }
-
-    private double calculatePartialSum(long symbolOccurrences){
-        if (symbolOccurrences <= 0) return  0.0D;
-        double probability = (double) symbolOccurrences / (double) allSymbolsOccurrences;
-        final double measureInformation = -log2(probability);
-        return measureInformation * probability;
+        double conditionalEntropy = 0.0;
+        for (Map.Entry<Byte, DataCollector> parentSign : symbolsData.entrySet()) {
+            final DataCollector dataCollector = parentSign.getValue();
+            for (Long occurrences : dataCollector.getNeighborsOccurrences().values()) {
+                if (occurrences == 0.0) continue;
+                conditionalEntropy += (occurrences * (log2(dataCollector.getSymbolOccurrences()) - log2(occurrences)));
+            }
+        }
+        return conditionalEntropy/(allSymbolsOccurrences);
     }
 
     double log2(double x) {
