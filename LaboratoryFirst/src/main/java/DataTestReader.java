@@ -95,7 +95,7 @@ public class DataTestReader {
         for (Map.Entry<Byte, DataCollector> parentSign : symbolsData.entrySet()) {
             final DataCollector dataCollector = parentSign.getValue();
             for (Long occurrences : dataCollector.getNeighborsOccurrences().values()) {
-                if (occurrences == 0.0) continue;
+                if (occurrences == 0.0 || dataCollector.getSymbolOccurrences() == 0.0) continue;
                 conditionalEntropy += (occurrences * (log2(dataCollector.getSymbolOccurrences()) - log2(occurrences)));
             }
         }
@@ -108,7 +108,7 @@ public class DataTestReader {
 
     public void printData(Map<Byte, DataCollector> symbolsData) {
         symbolsData.forEach((k, v) -> {
-            System.out.print("\u001b[48;5;28m" + k + "\u001b[0m [" + String.format("%6d",v.getSymbolOccurrences()) + "]");
+            System.out.print("\u001b[48;5;28m" + String.format("%3d",k) + "\u001b[0m [" + String.format("%6d",v.getSymbolOccurrences()) + "]");
             final StringBuilder stringBuilder = new StringBuilder("--> \t {");
             v.getNeighborsOccurrences().forEach((k2, v2) -> {
                 stringBuilder.append(" \u001b[48;5;20m").append(k2).append("\u001b[0m").append('[').append(v2).append("],");
