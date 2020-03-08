@@ -4,15 +4,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataTestReader {
 
     private static final String testDirectory = System.getProperty("user.dir").concat("/LaboratoryFirst/src/main/resources/testy1");
     private static final int BLOCK_SIZE = 1;
-    private final Map<Byte, DataCollector> symbolsData = new HashMap<>();
+    private final Map<Byte, DataCollector> symbolsData = new ConcurrentHashMap<>();
     private static double allSymbolsOccurrences;
 
     public DataTestReader() {
@@ -41,16 +41,16 @@ public class DataTestReader {
 
     private void collectDataFromFile(String path) {
         try (final FileChannel fileChannel = FileChannel.open(Paths.get(path), StandardOpenOption.READ)) {
-            Byte lastSign = 0;
-            symbolsData.put(lastSign, new DataCollector(0));
+            byte previousByte = 0;
+            symbolsData.put(previousByte, new DataCollector(0));
             allSymbolsOccurrences = fileChannel.size();
-            while (fileChannel.position() < fileChannel.size()) {
-                ByteBuffer buff = ByteBuffer.allocate(BLOCK_SIZE);
-                fileChannel.read(buff);
-                Byte fileContent = buff.array()[0];
-                this.manageFrequencyOfSign(fileContent);
-                this.manageFrequencyOfSignAfterGivenSign(lastSign, fileContent);
-                lastSign = fileContent;
+            ByteBuffer buffer = ByteBuffer.allocate((int) allSymbolsOccurrences);
+            fileChannel.read(buffer);
+            buffer.flip();
+            for (byte currentByte : buffer.array()) {
+                this.manageFrequencyOfSign(currentByte);
+                this.manageFrequencyOfSignAfterGivenSign(previousByte, currentByte);
+                previousByte = currentByte;
             }
         } catch (IOException e) {
             e.printStackTrace();
