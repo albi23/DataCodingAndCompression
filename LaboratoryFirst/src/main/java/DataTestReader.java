@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DataTestReader {
 
     private static final String testDirectory = System.getProperty("user.dir").concat("/LaboratoryFirst/src/main/resources/testy1");
-    private static final int BLOCK_SIZE = 1;
     private final Map<Byte, DataCollector> symbolsData = new ConcurrentHashMap<>();
     private static double allSymbolsOccurrences;
 
