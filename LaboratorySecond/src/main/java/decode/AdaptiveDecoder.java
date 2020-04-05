@@ -16,7 +16,7 @@ public class AdaptiveDecoder implements FileProcessing {
     public AdaptiveDecoder(String inputFilePath, String outputFilePath) {
         this.inputFile = Objects.requireNonNull(inputFilePath);
         if (outputFilePath == null || outputFilePath.length() == 0)
-            outputFilePath = System.getProperty("user.dir").concat("/encodedFile.bin");
+            outputFilePath = System.getProperty("user.dir").concat("/decodedFile.txt");
 
         this.outFile = outputFilePath;
     }

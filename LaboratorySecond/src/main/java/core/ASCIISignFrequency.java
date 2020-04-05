@@ -36,6 +36,9 @@ public class ASCIISignFrequency {
         return total;
     }
 
+    public int[] getFrequencies() {
+        return frequencies;
+    }
 
     public int getLow(int symbol) {
         if (cumulative == null)

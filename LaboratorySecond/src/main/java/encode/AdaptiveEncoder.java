@@ -33,6 +33,8 @@ public class AdaptiveEncoder implements FileProcessing {
             enc.write(freqs, symbol);
             freqs.increment(symbol);
         }
+        System.out.println(" Entropy :  "+Utility.countEntropy(freqs.getTotal()-256,freqs.getFrequencies()));
+        System.out.println(Arrays.toString(freqs.getFrequencies()));
         enc.write(freqs, 256);
         enc.finish();
     }
@@ -45,4 +47,5 @@ public class AdaptiveEncoder implements FileProcessing {
             this.compress(in, out);
         }
     }
+
 }

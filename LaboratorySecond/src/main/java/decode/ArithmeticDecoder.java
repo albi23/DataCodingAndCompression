@@ -19,7 +19,6 @@ public final class ArithmeticDecoder extends BaseArithmeticCoder {
 	}
 
 	public int read(ASCIISignFrequency freqs) throws IOException {
-		// Translate from coding range scale to frequency table scale
 		long total = freqs.getTotal();
 		if (total > maximumTotal)
 			throw new IllegalArgumentException("Cannot decode symbol because total is too large");
