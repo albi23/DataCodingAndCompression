@@ -101,16 +101,16 @@ public class DataTestReader {
         return conditionalEntropy/(allSymbolsOccurrences);
     }
 
-    double log2(double x) {
+    public static double log2(double x) {
         return Math.log(x) / Math.log(2);
     }
 
     public void printData(Map<Byte, DataCollector> symbolsData) {
         symbolsData.forEach((k, v) -> {
-            System.out.print("\u001b[48;5;28m" + String.format("%3d",k) + "\u001b[0m [" + String.format("%6d",v.getSymbolOccurrences()) + "]");
+            System.out.print("\u001b[48;5;28m" + String.format("%4d",k) + "\u001b[0m [" + String.format("%6d",v.getSymbolOccurrences()) + "]");
             final StringBuilder stringBuilder = new StringBuilder("--> \t {");
             v.getNeighborsOccurrences().forEach((k2, v2) -> {
-                stringBuilder.append(" \u001b[48;5;20m").append(k2).append("\u001b[0m").append('[').append(v2).append("],");
+                stringBuilder.append(" \u001b[48;5;20m").append(String.format("%4d",k2)).append("\u001b[0m").append('[').append(v2).append("],");
             });
             stringBuilder.setLength(stringBuilder.length()-1);
             System.out.println(stringBuilder.toString().concat(" }"));
