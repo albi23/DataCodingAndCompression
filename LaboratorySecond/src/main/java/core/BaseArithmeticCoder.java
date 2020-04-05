@@ -29,8 +29,7 @@ public abstract class BaseArithmeticCoder {
         high = stateMask;
     }
 
-    protected void update(SimpleFrequencyTable freqs, int symbol) throws IOException {
-        // State check
+    protected void update(ASCIISignFrequency freqs, int symbol) throws IOException {
         if (low >= high || (low & stateMask) != low || (high & stateMask) != high)
             throw new AssertionError("Low or high out of range");
         long range = high - low + 1;

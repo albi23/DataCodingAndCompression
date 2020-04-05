@@ -1,7 +1,7 @@
 package encode;
 
 import core.FileProcessing;
-import core.SimpleFrequencyTable;
+import core.ASCIISignFrequency;
 import utils.Utility;
 
 import java.io.*;
@@ -10,8 +10,8 @@ import java.util.Objects;
 
 public class AdaptiveEncoder implements FileProcessing {
 
-    private String inputFile;
-    private String outFile;
+    private final String inputFile;
+    private final String outFile;
 
     public AdaptiveEncoder(String inputFilePath, String outputFilePath) {
         this.inputFile = Objects.requireNonNull(inputFilePath);
@@ -24,7 +24,7 @@ public class AdaptiveEncoder implements FileProcessing {
     private void compress(InputStream in, BitOutputStream out) throws IOException {
         int[] initFreqs = new int[257];
         Arrays.fill(initFreqs, 1);
-        SimpleFrequencyTable freqs = new SimpleFrequencyTable(initFreqs);
+        ASCIISignFrequency freqs = new ASCIISignFrequency(initFreqs);
         ArithmeticEncoder enc = new ArithmeticEncoder(32, out);
         while (true) {
             int symbol = in.read();

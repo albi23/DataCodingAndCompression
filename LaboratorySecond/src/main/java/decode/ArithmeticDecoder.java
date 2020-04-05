@@ -1,7 +1,7 @@
 package decode;
 
 import core.BaseArithmeticCoder;
-import core.SimpleFrequencyTable;
+import core.ASCIISignFrequency;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -18,9 +18,7 @@ public final class ArithmeticDecoder extends BaseArithmeticCoder {
 			code = code << 1 | readCodeBit();
 	}
 
-
-
-	public int read(SimpleFrequencyTable freqs) throws IOException {
+	public int read(ASCIISignFrequency freqs) throws IOException {
 		// Translate from coding range scale to frequency table scale
 		long total = freqs.getTotal();
 		if (total > maximumTotal)

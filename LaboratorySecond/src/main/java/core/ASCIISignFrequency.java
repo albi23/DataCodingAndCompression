@@ -2,15 +2,15 @@ package core;
 
 import java.util.Objects;
 
-public class SimpleFrequencyTable {
+public class ASCIISignFrequency {
 
     private int[] frequencies;
     private int[] cumulative;
     private int total;
 
-    public SimpleFrequencyTable(int[] freqs) {
-        Objects.requireNonNull(freqs);
-        frequencies = freqs.clone();  // Make copy
+    public ASCIISignFrequency(int[] freq) {
+        Objects.requireNonNull(freq);
+        frequencies = freq.clone();  // Make copy
         total = 0;
         for (int x : frequencies) {
             if (x < 0)

@@ -1,7 +1,7 @@
 package decode;
 
 import core.FileProcessing;
-import core.SimpleFrequencyTable;
+import core.ASCIISignFrequency;
 import utils.Utility;
 
 import java.io.*;
@@ -31,16 +31,16 @@ public class AdaptiveDecoder implements FileProcessing {
     }
 
     private void decompress(BitInputStream in, OutputStream out) throws IOException {
-        int[] initFreqs = new int[257];
-        Arrays.fill(initFreqs, 1);
-        SimpleFrequencyTable freqs = new SimpleFrequencyTable(initFreqs);
+        int[] initFreq = new int[257];
+        Arrays.fill(initFreq, 1);
+        ASCIISignFrequency freq = new ASCIISignFrequency(initFreq);
         ArithmeticDecoder dec = new ArithmeticDecoder(32, in);
         while (true) {
-            int symbol = dec.read(freqs);
+            int symbol = dec.read(freq);
             if (symbol == 256)  // EOF symbol
                 break;
             out.write(symbol);
-            freqs.increment(symbol);
+            freq.increment(symbol);
         }
     }
 }

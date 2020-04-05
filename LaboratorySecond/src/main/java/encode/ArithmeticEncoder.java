@@ -1,7 +1,7 @@
 package encode;
 
 import core.BaseArithmeticCoder;
-import core.SimpleFrequencyTable;
+import core.ASCIISignFrequency;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -17,8 +17,7 @@ public class ArithmeticEncoder extends BaseArithmeticCoder {
         numUnderflow = 0;
     }
 
-
-    public void write(SimpleFrequencyTable freqs, int symbol) throws IOException {
+    public void write(ASCIISignFrequency freqs, int symbol) throws IOException {
         update(freqs, symbol);
     }
 
