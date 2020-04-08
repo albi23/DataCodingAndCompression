@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public final class BitInputStream implements AutoCloseable {
 
-	private InputStream input;
+	private final InputStream input;
 	private int currentByte;
 	private int numBitsRemaining;
 

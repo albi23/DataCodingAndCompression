@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class ArithmeticEncoder extends BaseArithmeticCoder {
 
-    private BitOutputStream output;
+    private final BitOutputStream output;
     private int numUnderflow;
 
     public ArithmeticEncoder(int numBits, BitOutputStream out) {
@@ -23,6 +23,7 @@ public class ArithmeticEncoder extends BaseArithmeticCoder {
 
     public void finish() throws IOException {
         output.write(1);
+        output.close();
     }
 
 

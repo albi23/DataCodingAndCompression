@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public final class ArithmeticDecoder extends BaseArithmeticCoder {
-	private BitInputStream input;
+	private final BitInputStream input;
 	private long code;
 
 	public ArithmeticDecoder(int numBits, BitInputStream in) throws IOException {

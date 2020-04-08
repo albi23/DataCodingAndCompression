@@ -1,11 +1,12 @@
 package encode;
 
-import core.FileProcessing;
 import core.ASCIISignFrequency;
+import core.FileProcessing;
 import utils.Utility;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class AdaptiveEncoder implements FileProcessing {
@@ -33,10 +34,9 @@ public class AdaptiveEncoder implements FileProcessing {
             enc.write(freqs, symbol);
             freqs.increment(symbol);
         }
-        System.out.println(" Entropy :  "+Utility.countEntropy(freqs.getTotal()-256,freqs.getFrequencies()));
-        System.out.println(Arrays.toString(freqs.getFrequencies()));
         enc.write(freqs, 256);
         enc.finish();
+        this.printCompressInfo(freqs);
     }
 
     @Override
@@ -46,6 +46,16 @@ public class AdaptiveEncoder implements FileProcessing {
              BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)))) {
             this.compress(in, out);
         }
+    }
+
+    public void printCompressInfo(ASCIISignFrequency freqs) throws FileNotFoundException {
+        for (int i = 0; i < freqs.getFrequencies().length; i++)
+            freqs.getFrequencies()[i]--;
+
+        System.out.println("Entropy :  " + Utility.countEntropy(freqs.getTotal() - 256, freqs.getFrequencies()));
+        final List<Long> filesSize = Utility.getFilesSize(inputFile, outFile);
+        System.out.println(String.format("Compression : %1.2f", (filesSize.get(1) / (double) filesSize.get(0)) * 100).concat("%"));
+
     }
 
 }

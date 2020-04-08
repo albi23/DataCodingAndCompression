@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.util.Objects;
 
 public class BitOutputStream implements AutoCloseable{
-    private OutputStream output;
+    private final OutputStream output;
     private int currentByte;
     private int numBitsFilled;
 
