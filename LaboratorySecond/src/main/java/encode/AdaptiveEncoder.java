@@ -55,7 +55,7 @@ public class AdaptiveEncoder implements FileProcessing {
         final int[] ints = Arrays.copyOf(freqs.getFrequencies(), 256);
         System.out.println("Entropy :  " + Utility.countEntropy(freqs.getTotal() -initFreq, ints));
         final List<Long> filesSize = Utility.getFilesSize(inputFile, outFile);
-        System.out.println(String.format("Compression : %1.2f", (100.0D-(filesSize.get(1) / (double) filesSize.get(0)) * 100)).concat("%"));
+        System.out.println(String.format("Compression : %1.2f", (100.0D - (filesSize.get(1) / (double) filesSize.get(0)) * 100)).concat("%"));
 
     }
 
