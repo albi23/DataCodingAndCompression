@@ -36,7 +36,7 @@ public class AdaptiveEncoder implements FileProcessing {
         }
         enc.write(freqs, 256);
         enc.finish();
-        this.printCompressInfo(freqs);
+        this.printCompressInfo(freqs,initFreqs.length);
     }
 
     @Override
@@ -48,13 +48,14 @@ public class AdaptiveEncoder implements FileProcessing {
         }
     }
 
-    public void printCompressInfo(ASCIISignFrequency freqs) throws FileNotFoundException {
+    public void printCompressInfo(ASCIISignFrequency freqs, int initFreq) throws FileNotFoundException {
         for (int i = 0; i < freqs.getFrequencies().length; i++)
             freqs.getFrequencies()[i]--;
 
-        System.out.println("Entropy :  " + Utility.countEntropy(freqs.getTotal() - 256, freqs.getFrequencies()));
+        final int[] ints = Arrays.copyOf(freqs.getFrequencies(), 256);
+        System.out.println("Entropy :  " + Utility.countEntropy(freqs.getTotal() -initFreq, ints));
         final List<Long> filesSize = Utility.getFilesSize(inputFile, outFile);
-        System.out.println(String.format("Compression : %1.2f", (filesSize.get(1) / (double) filesSize.get(0)) * 100).concat("%"));
+        System.out.println(String.format("Compression : %1.2f", (100.0D-(filesSize.get(1) / (double) filesSize.get(0)) * 100)).concat("%"));
 
     }
 
