@@ -15,59 +15,67 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 3) {
-            System.err.println("Usage: java  Main --encode --alg inputFile outputFile ");
-            System.err.println("Usage: java  Main --decode --alg inputFile outputFile");
-            System.exit(1);
-        }
+//        if (args.length != 3) {
+//            System.err.println("Usage: java  Main --encode --alg inputFile outputFile ");
+//            System.err.println("Usage: java  Main --decode --alg inputFile outputFile");
+//            System.exit(1);
+//        }
 
         Main main = new Main();
-        main.encodeFile("LaboratoryThird/src/main/java/test.txt");
+//        main.encodeFile("LaboratoryThird/src/main/java/test.txt");
+        main.decodeFile("LaboratoryThird/src/main/java/encodedfile");
     }
 
     private void decodeFile(String path) throws IOException {
         final String code = readAllWordsFromBigFiles(path);
+        final Stack<Integer> codes = eliasGammaDecode(code);
+        Map<Integer, String> mapping = new HashMap<>(256);
 
+        for (int i = 0; i < 256; i++) {
+            mapping.put(i + 1, new String(new char[]{(char) (i)}));
+        }
+
+        saveToFile("decoded", decodeLZW(codes, mapping));
     }
 
-    private void   encodeFile(String path) throws IOException {
+    private void encodeFile(String path) throws IOException {
         Map<String, Integer> mapping = new HashMap<>(256);
 
         for (int i = 0; i < 256; i++) {
-            mapping.put(new String(new char[]{(char) (i)}), i+1);
+            mapping.put(new String(new char[]{(char) (i)}), i + 1);
         }
 
         final byte[] bytes = readFile(path);
-        final long fileLength = bytes.length*8;
+        final long fileLength = bytes.length * 8;
         final List<Integer> signOccurrences = signOccurrences(bytes);
         final ArrayList<Integer> lzwEncoded = this.encodeLZW(bytes, mapping);
         final String code = lzwEncoded.stream().map(this::eliasGamma).collect(Collectors.joining());
-        printEncodedInfo(signOccurrences,fileLength,code,fileLength);
-        saveToFile("encodedfile",code);
+        printEncodedInfo(signOccurrences, fileLength, code, fileLength);
+        saveToFile("encodedfile", code);
 
     }
 
-    private static List<Integer> signOccurrences(byte[] bytes){
+    private static List<Integer> signOccurrences(byte[] bytes) {
         int[] occurences = new int[257];
-        for (byte b: bytes) {
+        for (byte b : bytes) {
             occurences[b & 0xFF]++;
         }
         return Arrays.stream(occurences).filter(x -> x > 0).boxed().collect(Collectors.toList());
     }
 
-    private  byte[] readFile(String path) throws IOException {
+    private byte[] readFile(String path) throws IOException {
         return Files.readAllBytes(Paths.get(path));
     }
 
-    private void saveToFile(String outputPath,String encoded) throws IOException {
-        Files.write(Paths.get(outputPath),encoded.getBytes());
+    private void saveToFile(String outputPath, String encoded) throws IOException {
+        Files.write(Paths.get(outputPath), encoded.getBytes());
     }
 
     public static String readAllWordsFromBigFiles(String pathToResource) throws IOException {
         CharBuffer charBuffer = null;
         FileChannel chanel = FileChannel.open(Paths.get(pathToResource), StandardOpenOption.READ);
         MappedByteBuffer buffer = chanel.map(FileChannel.MapMode.READ_ONLY, 0, chanel.size());
-        if (buffer != null) charBuffer = StandardCharsets.UTF_8.decode(buffer);
+        if (buffer != null) charBuffer = StandardCharsets.US_ASCII.decode(buffer);
         chanel.close();
 
         return (charBuffer != null) ? charBuffer.toString() : "";
@@ -94,37 +102,61 @@ public class Main {
         return out;
     }
 
-    private String eliasGamma(int num){
+    private String decodeLZW(Stack<Integer> codes, Map<Integer, String> mapping) {
+        int counter = mapping.size() + 1;
+        Integer pk = codes.get(0);
+        StringBuilder out = new StringBuilder(mapping.get(pk));
+        for (Integer code : codes.subList(1, codes.size())) {
+            final String str = mapping.get(pk);
+            if (mapping.get(code) != null) {
+                String tmp = mapping.get(code);
+                mapping.put(counter, str.concat(tmp.substring(1)));
+                out.append(tmp);
+            } else {
+                String binary = str.concat(str.substring(1));
+                mapping.put(counter, binary);
+                out.append(binary);
+            }
+            pk = code;
+            counter++;
+        }
+        return out.toString();
+    }
+
+    private String eliasGamma(int num) {
         String response = "";
-        if (num > 0 ){
+        if (num > 0) {
             int tmp = (int) (Math.log(num) / Math.log(2));
             final String binaryString = Integer.toBinaryString(num);
-            response = StringUtils.leftPad(response,tmp,'0').concat(binaryString);
+            response = StringUtils.leftPad(response, tmp, '0').concat(binaryString);
         }
         return response;
     }
 
-//    private void eliasGammaDecode(String code){
-//
-//        final List<Integer> response = new ArrayList<>();
-//        while (code.length()>0){
-//            code.
-//        }
-//    }
+    private Stack<Integer> eliasGammaDecode(String code) {
+        final Stack<Integer> response = new Stack<>();
+        while (code.length() > 0) {
+            final int i = code.indexOf("1");
+            code = code.substring(i);
+            response.add(Integer.parseInt(code.substring(0, i + 1), 2));
+            code = code.substring(i + 1);
+        }
+        return response;
+    }
 
-    private void printEncodedInfo(List<Integer> signTextOccurrences,long allOccurrences,String code, long originalFileSize){
+    private void printEncodedInfo(List<Integer> signTextOccurrences, long allOccurrences, String code, long originalFileSize) {
         final double textEntropy = countEntropy(allOccurrences / 8, signTextOccurrences.toArray(new Integer[signTextOccurrences.size()]));
         int zero = 0;
-        for (char c : code.toCharArray()){
-            if(c == 48) zero++;
+        for (char c : code.toCharArray()) {
+            if (c == 48) zero++;
         }
         final Integer[] ints = {zero, code.length() - zero};
 
-        System.out.println("Input file size : "+originalFileSize);
-        System.out.println("Compress file size : "+code.length());
-        System.out.println("Compression rate : "+(originalFileSize)/(double)code.length());
-        System.out.println("Text entropy : "+textEntropy);
-        System.out.println("Code entropy : "+countEntropy(code.length(),ints));
+        System.out.println("Input file size : " + originalFileSize);
+        System.out.println("Compress file size : " + code.length());
+        System.out.println("Compression rate : " + (originalFileSize) / (double) code.length());
+        System.out.println("Text entropy : " + textEntropy);
+        System.out.println("Code entropy : " + countEntropy(code.length(), ints));
     }
 
 
@@ -135,7 +167,7 @@ public class Main {
             if (data <= 0) continue;
             entropy += data * (logFromAll - log2(data));
         }
-        return entropy/allSymbolsOccurrences;
+        return entropy / allSymbolsOccurrences;
     }
 
     public static double log2(double x) {
