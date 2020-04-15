@@ -48,15 +48,17 @@ public class AdaptiveEncoder implements FileProcessing {
         }
     }
 
-    public void printCompressInfo(ASCIISignFrequency freqs, int initFreq) throws FileNotFoundException {
+    public void printCompressInfo(ASCIISignFrequency freqs, final int initFreq) throws FileNotFoundException {
         for (int i = 0; i < freqs.getFrequencies().length; i++)
             freqs.getFrequencies()[i]--;
 
         final int[] ints = Arrays.copyOf(freqs.getFrequencies(), 256);
         System.out.println("Entropy :  " + Utility.countEntropy(freqs.getTotal() -initFreq, ints));
         final List<Long> filesSize = Utility.getFilesSize(inputFile, outFile);
-        System.out.println(String.format("Compression : %1.2f", (100.0D - (filesSize.get(1) / (double) filesSize.get(0)) * 100)).concat("%"));
-
+        final double compressionRate = (double)filesSize.get(0) / (double) filesSize.get(1);
+        System.out.println("input : "+ filesSize.get(0)+" out : "+filesSize.get(1));
+        System.out.println("Compression rate : "+compressionRate);
+        System.out.println("Average code length: "+(8.0/compressionRate));
     }
 
 }

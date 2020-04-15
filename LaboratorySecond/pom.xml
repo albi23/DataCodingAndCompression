@@ -9,6 +9,8 @@
         <artifactId>DataCodingAndCompression</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
+    <packaging>jar</packaging>
     <artifactId>LaboratorySecond</artifactId>
     <version>1.0-SNAPSHOT</version>
 
