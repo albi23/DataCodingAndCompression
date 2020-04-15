@@ -14,16 +14,37 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-//        if (args.length != 3) {
-//            System.err.println("Usage: java  Main --encode --alg inputFile outputFile ");
-//            System.err.println("Usage: java  Main --decode --alg inputFile outputFile");
-//            System.exit(1);
-//        }
+    private short methodState = 0;
 
+    public static void main(String[] args) throws IOException {
+        if (args.length < 3 || args.length > 4) {
+            System.err.println("Usage: java  Main --encode --name_of_alg -file inputFilePath");
+            System.err.println("Usage: java  Main --decode --name_of_alg -file inputFilePath");
+            System.err.println("name_of_alg : gamma, delta fibb omega");
+            System.exit(1);
+        }
         Main main = new Main();
-//        main.encodeFile("LaboratoryThird/src/main/java/test.txt");
-        main.decodeFile("LaboratoryThird/src/main/java/encodedfile");
+        switch (args[1]) {
+            case "--delta":
+                main.methodState = 1;
+                break;
+            case "--fibb":
+                main.methodState = 2;
+                break;
+            case "--omega":
+                main.methodState = 3;
+                break;
+            default:
+                main.methodState = 0;
+        }
+        String inputFilepath = (args.length == 3) ? args[2]: args[3];
+        if (args[0].equals("--encode")) {
+            main.encodeFile(inputFilepath);
+        } else if (args[0].equals("--decode")) {
+            main.decodeFile(inputFilepath);
+        } else {
+            throw new UnsupportedOperationException(String.format("No support for %s option", args[0]));
+        }
     }
 
     private void decodeFile(String path) throws IOException {
@@ -34,7 +55,6 @@ public class Main {
         for (int i = 0; i < 256; i++) {
             mapping.put(i + 1, new String(new char[]{(char) (i)}));
         }
-
         saveToFile("decoded", decodeLZW(codes, mapping));
     }
 
@@ -49,7 +69,7 @@ public class Main {
         final long fileLength = bytes.length * 8;
         final List<Integer> signOccurrences = signOccurrences(bytes);
         final ArrayList<Integer> lzwEncoded = this.encodeLZW(bytes, mapping);
-        final String code = lzwEncoded.stream().map(this::eliasGamma).collect(Collectors.joining());
+        final String code = lzwEncoded.stream().map(this::codeMethod).collect(Collectors.joining());
         printEncodedInfo(signOccurrences, fileLength, code, fileLength);
         saveToFile("encodedfile", code);
 
@@ -123,6 +143,26 @@ public class Main {
         return out.toString();
     }
 
+    private String codeMethod(int num) {
+        switch (this.methodState) {
+//            case 1:
+//                return
+//            case 2:
+//                return
+//            case 3:
+//                return
+            default:
+                return eliasGamma(num);
+        }
+    }
+
+    private void eliasOmega(int num){
+        List<String> result = new ArrayList<>();
+
+        while (num > 1){
+
+        }
+    }
     private String eliasGamma(int num) {
         String response = "";
         if (num > 0) {
