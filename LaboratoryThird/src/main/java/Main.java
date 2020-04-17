@@ -1,10 +1,8 @@
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -15,6 +13,7 @@ import java.util.stream.Collectors;
 public class Main {
 
     private short methodState = 0;
+    private EliasCodes eliasCodes;
 
     public static void main(String[] args) throws IOException {
         if (args.length < 3 || args.length > 4) {
@@ -31,13 +30,14 @@ public class Main {
             case "--fibb":
                 main.methodState = 2;
                 break;
-            case "--omega":
+            case "--gamma":
                 main.methodState = 3;
                 break;
             default:
                 main.methodState = 0;
         }
-        String inputFilepath = (args.length == 3) ? args[2]: args[3];
+        String inputFilepath = (args.length == 3) ? args[2] : args[3];
+        main.eliasCodes = new ElisaOmega().getInstance(main.methodState);
         if (args[0].equals("--encode")) {
             main.encodeFile(inputFilepath);
         } else if (args[0].equals("--decode")) {
@@ -49,7 +49,7 @@ public class Main {
 
     private void decodeFile(String path) throws IOException {
         final String code = readAllWordsFromBigFiles(path);
-        final Stack<Integer> codes = eliasGammaDecode(code);
+        final Stack<Integer> codes = this.eliasCodes.decode(code);
         Map<Integer, String> mapping = new HashMap<>(256);
 
         for (int i = 0; i < 256; i++) {
@@ -69,9 +69,9 @@ public class Main {
         final long fileLength = bytes.length * 8;
         final List<Integer> signOccurrences = signOccurrences(bytes);
         final ArrayList<Integer> lzwEncoded = this.encodeLZW(bytes, mapping);
-        final String code = lzwEncoded.stream().map(this::codeMethod).collect(Collectors.joining());
+        final String code = lzwEncoded.stream().map(this.eliasCodes::encode).collect(Collectors.joining());
         printEncodedInfo(signOccurrences, fileLength, code, fileLength);
-        saveToFile("encodedfile", code);
+        saveBytesToFile("encodedFile.bin", code);
 
     }
 
@@ -91,14 +91,31 @@ public class Main {
         Files.write(Paths.get(outputPath), encoded.getBytes());
     }
 
+    private void saveBytesToFile(String outputPath, String encoded) throws IOException {
+        final byte[] bytes = new byte[(int) Math.ceil(encoded.length() / 8.0)];
+        int index = -1, slice = 8;
+        while (++index < bytes.length) {
+            bytes[index] = (byte) Integer.parseInt(encoded.substring(0, slice), 2);
+            encoded = encoded.substring(slice);
+            if (encoded.length() < 8) slice = encoded.length();
+        }
+        Files.write(Paths.get(outputPath), bytes);
+    }
     public static String readAllWordsFromBigFiles(String pathToResource) throws IOException {
-        CharBuffer charBuffer = null;
         FileChannel chanel = FileChannel.open(Paths.get(pathToResource), StandardOpenOption.READ);
-        MappedByteBuffer buffer = chanel.map(FileChannel.MapMode.READ_ONLY, 0, chanel.size());
-        if (buffer != null) charBuffer = StandardCharsets.US_ASCII.decode(buffer);
+        ByteBuffer buffer = ByteBuffer.allocate((int) chanel.size());
+        chanel.read(buffer);
+        buffer.flip();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : buffer.array()) {
+            final String str = Integer.toBinaryString(b & 0xFF);
+//            System.out.println(str+" ---> "+StringUtils.leftPad(str, 8, '0'));
+            sb.append(StringUtils.leftPad(str, 8, '0'));
+//            System.out.println(sb.length());
+        }
         chanel.close();
 
-        return (charBuffer != null) ? charBuffer.toString() : "";
+        return sb.toString();
     }
 
     private ArrayList<Integer> encodeLZW(byte[] bufferedText, Map<String, Integer> mapping) {
@@ -143,60 +160,25 @@ public class Main {
         return out.toString();
     }
 
-    private String codeMethod(int num) {
-        switch (this.methodState) {
-//            case 1:
-//                return
-//            case 2:
-//                return
-//            case 3:
-//                return
-            default:
-                return eliasGamma(num);
-        }
-    }
-
-    private void eliasOmega(int num){
-        List<String> result = new ArrayList<>();
-
-        while (num > 1){
-
-        }
-    }
-    private String eliasGamma(int num) {
-        String response = "";
-        if (num > 0) {
-            int tmp = (int) (Math.log(num) / Math.log(2));
-            final String binaryString = Integer.toBinaryString(num);
-            response = StringUtils.leftPad(response, tmp, '0').concat(binaryString);
-        }
-        return response;
-    }
-
-    private Stack<Integer> eliasGammaDecode(String code) {
-        final Stack<Integer> response = new Stack<>();
-        while (code.length() > 0) {
-            final int i = code.indexOf("1");
-            code = code.substring(i);
-            response.add(Integer.parseInt(code.substring(0, i + 1), 2));
-            code = code.substring(i + 1);
-        }
-        return response;
-    }
-
     private void printEncodedInfo(List<Integer> signTextOccurrences, long allOccurrences, String code, long originalFileSize) {
         final double textEntropy = countEntropy(allOccurrences / 8, signTextOccurrences.toArray(new Integer[signTextOccurrences.size()]));
-        int zero = 0;
-        for (char c : code.toCharArray()) {
-            if (c == 48) zero++;
+
+        int codeLength = code.length();
+        Integer[] occurrences = new Integer[257];
+        Arrays.fill(occurrences, 0);
+        while (code.length() > 8) {
+            occurrences[Integer.parseInt(code.substring(0, 8), 2)]++;
+            code = code.substring(8);
         }
-        final Integer[] ints = {zero, code.length() - zero};
+        if (code.length() > 0)
+            occurrences[Integer.parseInt(code, 2)]++;
+
 
         System.out.println("Input file size : " + originalFileSize);
         System.out.println("Compress file size : " + code.length());
-        System.out.println("Compression rate : " + (originalFileSize) / (double) code.length());
+        System.out.println("Compression rate : " + (originalFileSize) / (double) codeLength);
         System.out.println("Text entropy : " + textEntropy);
-        System.out.println("Code entropy : " + countEntropy(code.length(), ints));
+        System.out.println("Code entropy : " + countEntropy(codeLength / 8, occurrences));
     }
 
 
