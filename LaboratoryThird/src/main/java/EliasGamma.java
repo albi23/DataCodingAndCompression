@@ -19,7 +19,7 @@ public class EliasGamma implements EliasCodes {
         final Stack<Integer> response = new Stack<>();
         while (code.length() > 0) {
             final int i = code.indexOf("1");
-            if(i < 0) break;
+            if (i < 0) break;
             code = code.substring(i);
             response.add(Integer.parseInt(code.substring(0, i + 1), 2));
             code = code.substring(i + 1);

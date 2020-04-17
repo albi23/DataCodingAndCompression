@@ -27,11 +27,14 @@ public class ElisaOmega implements EliasCodes {
                 response.push(n);
                 n = 1;
             } else {
-                final String tmp = code.substring(0, n + 1);
-                code = code.substring(n + 1);
+                int slice = Math.min(n + 1, code.length());
+                final String tmp = code.substring(0, slice);
+                code = code.substring(slice);
                 n = Integer.parseInt(tmp, 2);
             }
         }
+        System.out.println(response.size());
+        System.out.println(response);
         return response;
     }
 }

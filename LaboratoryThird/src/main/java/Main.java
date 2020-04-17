@@ -94,11 +94,15 @@ public class Main {
     private void saveBytesToFile(String outputPath, String encoded) throws IOException {
         final byte[] bytes = new byte[(int) Math.ceil(encoded.length() / 8.0)];
         int index = -1, slice = 8;
+        if (this.methodState == 0){
+            encoded = encoded.concat(StringUtils.leftPad("", 8 - (encoded.length() % 8), '1'));
+        }
         while (++index < bytes.length) {
             bytes[index] = (byte) Integer.parseInt(encoded.substring(0, slice), 2);
             encoded = encoded.substring(slice);
             if (encoded.length() < 8) slice = encoded.length();
         }
+
         Files.write(Paths.get(outputPath), bytes);
     }
     public static String readAllWordsFromBigFiles(String pathToResource) throws IOException {
