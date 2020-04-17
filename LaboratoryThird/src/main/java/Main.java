@@ -88,7 +88,9 @@ public class Main {
     }
 
     private void saveToFile(String outputPath, String encoded) throws IOException {
-        Files.write(Paths.get(outputPath), encoded.getBytes());
+        final byte[] bytes = encoded.getBytes();
+        System.out.println("encoded.getBytes().length "+bytes.length);
+        Files.write(Paths.get(outputPath), bytes);
     }
 
     private void saveBytesToFile(String outputPath, String encoded) throws IOException {
@@ -154,7 +156,7 @@ public class Main {
                 mapping.put(counter, str.concat(tmp.substring(1)));
                 out.append(tmp);
             } else {
-                String binary = str.concat(str.substring(1));
+                String binary = str.concat(str.substring(0,1));
                 mapping.put(counter, binary);
                 out.append(binary);
             }

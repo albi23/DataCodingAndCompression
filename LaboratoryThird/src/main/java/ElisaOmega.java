@@ -33,8 +33,6 @@ public class ElisaOmega implements EliasCodes {
                 n = Integer.parseInt(tmp, 2);
             }
         }
-        System.out.println(response.size());
-        System.out.println(response);
         return response;
     }
 }
