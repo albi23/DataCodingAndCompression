@@ -88,9 +88,7 @@ public class Main {
     }
 
     private void saveToFile(String outputPath, String encoded) throws IOException {
-        final byte[] bytes = encoded.getBytes();
-        System.out.println("encoded.getBytes().length "+bytes.length);
-        Files.write(Paths.get(outputPath), bytes);
+        Files.write(Paths.get(outputPath), encoded.getBytes());
     }
 
     private void saveBytesToFile(String outputPath, String encoded) throws IOException {
@@ -115,9 +113,7 @@ public class Main {
         StringBuilder sb = new StringBuilder();
         for (byte b : buffer.array()) {
             final String str = Integer.toBinaryString(b & 0xFF);
-//            System.out.println(str+" ---> "+StringUtils.leftPad(str, 8, '0'));
             sb.append(StringUtils.leftPad(str, 8, '0'));
-//            System.out.println(sb.length());
         }
         chanel.close();
 
@@ -180,11 +176,11 @@ public class Main {
             occurrences[Integer.parseInt(code, 2)]++;
 
 
-        System.out.println("Input file size : " + originalFileSize);
-        System.out.println("Compress file size : " + code.length());
-        System.out.println("Compression rate : " + (originalFileSize) / (double) codeLength);
-        System.out.println("Text entropy : " + textEntropy);
-        System.out.println("Code entropy : " + countEntropy(codeLength / 8, occurrences));
+        System.out.println(String.format("%-20s","Input file size ") + originalFileSize/8);
+        System.out.println(String.format("%-20s","Compress file size ") + Math.ceil(codeLength/8.0));
+        System.out.println(String.format("%-20s","Compression rate ")+ (originalFileSize) / (double) codeLength);
+        System.out.println(String.format("%-20s","Text entropy ")+ textEntropy);
+        System.out.println(String.format("%-20s","Code entropy ") + countEntropy(codeLength / 8, occurrences));
     }
 
 
