@@ -11,7 +11,7 @@ public class EliasFibonacci implements EliasCodes {
             fibLong[i] = fibLong[i - 1] + fibLong[i - 2];
     }
 
-    public final int getLargerOrEqualFibGum(final int n) {
+    public final int getLargerOrEqualFibNum(final int n) {
         int i;
         for (i = 2; fibLong[i - 1] <= n; i++) ;
         return i - 2;
@@ -19,7 +19,7 @@ public class EliasFibonacci implements EliasCodes {
 
     @Override
     public String encode(int num) {
-        int i = getLargerOrEqualFibGum(num);
+        int i = getLargerOrEqualFibNum(num);
         StringBuilder code = new StringBuilder(i + 2);
         while (num > 0) {
             code.insert(0, "1");
