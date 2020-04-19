@@ -13,6 +13,13 @@
     <description>Course Data Coding And Compression 2020</description>
     <url>https://github.com/albi23/DataCodingAndCompression</url>
 
+    <repositories>
+        <repository>
+            <id>bv-albi23</id>
+            <url>https://github.com/albi23/DataCodingAndCompression</url>
+        </repository>
+    </repositories>
+
     <inceptionYear>2020</inceptionYear>
     <developers>
         <developer>

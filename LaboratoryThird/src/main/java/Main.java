@@ -16,9 +16,9 @@ public class Main {
     private EliasCodes eliasCodes;
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 3 || args.length > 4) {
-            System.err.println("Usage: java  Main --encode --name_of_alg -file inputFilePath");
-            System.err.println("Usage: java  Main --decode --name_of_alg -file inputFilePath");
+        if (args.length < 4 || args.length > 5) {
+            System.err.println("Usage: java  Main --encode --name_of_alg -file inputFilePath outFilePath");
+            System.err.println("Usage: java  Main --decode --name_of_alg -file inputFilePath outFilePath");
             System.err.println("name_of_alg : gamma, delta fibb omega");
             System.exit(1);
         }
@@ -36,42 +36,42 @@ public class Main {
             default:
                 main.methodState = 0;
         }
-        String inputFilepath = (args.length == 3) ? args[2] : args[3];
+        int inputIndex = (args.length == 4) ? 2 : 3;
         main.eliasCodes = new ElisaOmega().getInstance(main.methodState);
         if (args[0].equals("--encode")) {
-            main.encodeFile(inputFilepath);
+            main.encodeFile(args[inputIndex],args[inputIndex+1]);
         } else if (args[0].equals("--decode")) {
-            main.decodeFile(inputFilepath);
+            main.decodeFile(args[inputIndex],args[inputIndex+1]);
         } else {
             throw new UnsupportedOperationException(String.format("No support for %s option", args[0]));
         }
     }
 
-    private void decodeFile(String path) throws IOException {
-        final String code = readAllWordsFromBigFiles(path);
+    private void decodeFile(String inputFilePath, String outFilePath) throws IOException {
+        final String code = readAllWordsFromBigFiles(inputFilePath);
         final Stack<Integer> codes = this.eliasCodes.decode(code);
         Map<Integer, String> mapping = new HashMap<>(256);
 
         for (int i = 0; i < 256; i++) {
             mapping.put(i + 1, new String(new char[]{(char) (i)}));
         }
-        saveToFile("decoded", decodeLZW(codes, mapping));
+        saveToFile(outFilePath, decodeLZW(codes, mapping));
     }
 
-    private void encodeFile(String path) throws IOException {
+    private void encodeFile(String inputFilePath,String outFilePath) throws IOException {
         Map<String, Integer> mapping = new HashMap<>(256);
 
         for (int i = 0; i < 256; i++) {
             mapping.put(new String(new char[]{(char) (i)}), i + 1);
         }
 
-        final byte[] bytes = readFile(path);
+        final byte[] bytes = readFile(inputFilePath);
         final long fileLength = bytes.length * 8;
         final List<Integer> signOccurrences = signOccurrences(bytes);
         final ArrayList<Integer> lzwEncoded = this.encodeLZW(bytes, mapping);
         final String code = lzwEncoded.stream().map(this.eliasCodes::encode).collect(Collectors.joining());
         printEncodedInfo(signOccurrences, fileLength, code, fileLength);
-        saveBytesToFile("encodedFile.bin", code);
+        saveBytesToFile(outFilePath, code);
 
     }
 
@@ -94,9 +94,9 @@ public class Main {
     private void saveBytesToFile(String outputPath, String encoded) throws IOException {
         final byte[] bytes = new byte[(int) Math.ceil(encoded.length() / 8.0)];
         int index = -1, slice = 8;
-        if (this.methodState == 0){
-            encoded = encoded.concat(StringUtils.leftPad("", 8 - (encoded.length() % 8), '1'));
-        }
+        encoded = (this.methodState == 0) ? encoded.concat(StringUtils.leftPad("", 8 - (encoded.length() % 8), '1')) :
+                encoded.concat(StringUtils.rightPad("", 8 - (encoded.length() % 8), '0'));
+
         while (++index < bytes.length) {
             bytes[index] = (byte) Integer.parseInt(encoded.substring(0, slice), 2);
             encoded = encoded.substring(slice);

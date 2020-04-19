@@ -6,8 +6,8 @@ public interface EliasCodes {
         switch (state) {
             case 1:
                 return new EliasDelta();
-//            case 2:
-//                return eliasFib(num);
+            case 2:
+                return new EliasFibonacci();
             case 3:
                 return new EliasGamma();
             default:
