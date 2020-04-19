@@ -35,9 +35,9 @@ public class EliasFibonacci implements EliasCodes {
         final Stack<Integer> integers = new Stack<>();
         final String[] codes = code.split("11");
         for (int i = 0; i < codes.length - 1; i++) {
-            codes[i] = codes[i].concat("11");
+            codes[i] = codes[i].concat("1");
             int result = 0;
-            for (int j = 0; j < codes[i].length() - 1; j++) {
+            for (int j = 0; j < codes[i].length(); j++) {
                 if (codes[i].charAt(j) == '1')
                     result += (int) fibLong[j];
             }
