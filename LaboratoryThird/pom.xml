@@ -29,7 +29,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Main</mainClass>
+                            <mainClass>MainTGA</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
