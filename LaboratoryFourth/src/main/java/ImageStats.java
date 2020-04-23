@@ -35,21 +35,6 @@ public class ImageStats {
         idx = ++x;
     }
 
-    public Pixel[][] getPixels() {
-        return pixels;
-    }
-
-    public int[] getRed() {
-        return this.rgbColors[0];
-    }
-
-    public int[] getGreen() {
-        return this.rgbColors[1];
-    }
-
-    public int[] getBlue() {
-        return this.rgbColors[2];
-    }
 
     public void increaseRed(int idx) {
         this.rgbOccurrences[0]++;
@@ -70,18 +55,32 @@ public class ImageStats {
         for (int i : idx) this.signs[i]++;
     }
 
-    public int[] getSigns() {
-        return signs;
-    }
-
     public void increaseAllSignOccurrences(int count) {
         this.allSignOccurrences += count;
+    }
+
+    public int[] getSigns() {
+        return signs;
     }
 
     public int getAllSignOccurrences() {
         return allSignOccurrences;
     }
+    public Pixel[][] getPixels() {
+        return pixels;
+    }
 
+    public int[] getRed() {
+        return this.rgbColors[0];
+    }
+
+    public int[] getGreen() {
+        return this.rgbColors[1];
+    }
+
+    public int[] getBlue() {
+        return this.rgbColors[2];
+    }
     public void setImageWidth(int imageWidth) {
         this.imageWidth = imageWidth;
     }
