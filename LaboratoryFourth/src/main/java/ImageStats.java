@@ -1,12 +1,8 @@
 public class ImageStats {
     private int imageWidth;
-    private int blueOccurrences;
-    private int redOccurrences;
-    private int greenOccurrences;
     private int allSignOccurrences;
-    private int[] red;
-    private int[] green;
-    private int[] blue;
+    private int[] rgbOccurrences;
+    private int[][] rgbColors;
     private int[] signs;
     private Pixel[][] pixels;
     private static int idx = 0;
@@ -18,11 +14,13 @@ public class ImageStats {
     }
 
     public void initRGBArrays() {
-        this.red = new int[256];
-        this.green = new int[256];
-        this.blue = new int[256];
+        this.rgbColors = new int[3][256];
+        this.rgbOccurrences = new int[3];
     }
 
+    public void initSignArray(){
+        this.signs = new int[256];
+    }
     public void initPixelsArray(int width, int height) {
         pixels = new Pixel[width][height];
         for (int i = 0; i < width; i++)
@@ -42,40 +40,42 @@ public class ImageStats {
     }
 
     public int[] getRed() {
-        return red;
+        return this.rgbColors[0];
     }
 
-
     public int[] getGreen() {
-        return green;
+        return this.rgbColors[1];
     }
 
     public int[] getBlue() {
-        return blue;
+        return this.rgbColors[2];
     }
 
     public void increaseRed(int idx) {
-        this.redOccurrences++;
-        this.red[idx]++;
+        this.rgbOccurrences[0]++;
+        this.rgbColors[0][idx]++;
     }
 
     public void increaseBlue(int idx) {
-        this.blueOccurrences++;
-        this.blue[idx]++;
+        this.rgbOccurrences[2]++;
+        this.rgbColors[2][idx]++;
     }
 
     public void increaseGreen(int idx) {
-        this.greenOccurrences++;
-        this.green[idx]++;
+        this.rgbOccurrences[1]++;
+        this.rgbColors[1][idx]++;
     }
 
     public void increaseSigns(int... idx) {
         for (int i : idx) this.signs[i]++;
-        allSignOccurrences += idx.length;
     }
 
     public int[] getSigns() {
         return signs;
+    }
+
+    public void increaseAllSignOccurrences(int count) {
+        this.allSignOccurrences += count;
     }
 
     public int getAllSignOccurrences() {
@@ -87,15 +87,15 @@ public class ImageStats {
     }
 
     public int getBlueOccurrences() {
-        return blueOccurrences;
+        return this.rgbOccurrences[2];
     }
 
     public int getRedOccurrences() {
-        return redOccurrences;
+        return this.rgbOccurrences[0];
     }
 
     public int getGreenOccurrences() {
-        return greenOccurrences;
+        return this.rgbOccurrences[1];
     }
 
     static class Pixel {

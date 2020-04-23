@@ -10,6 +10,7 @@ public class MainTGA {
         final String photoInputPath = args[0];
         final TGAImageDataCollector tgaImageDataCollector = new TGAImageDataCollector();
         tgaImageDataCollector.getBufferedImage(args[0]);
+        tgaImageDataCollector.printFileEntropy();
         tgaImageDataCollector.printColorsEntropy();
         tgaImageDataCollector.prediction();
     }

@@ -1,9 +1,7 @@
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Objects;
 
 public class TGAImageDataCollector extends TGAImageReader {
-    private final ThreeArgsFunction<Integer>[] predictions = new ThreeArgsFunction[7];
+    private final ThreeArgsFunction<Integer>[] func = new ThreeArgsFunction[7];
     private final ImageStats imageStats;
 
     public TGAImageDataCollector(ImageStats imageStats) {
@@ -17,24 +15,24 @@ public class TGAImageDataCollector extends TGAImageReader {
     }
 
     private void initPrediction() {
-        predictions[0] = (x, y, z) -> x;
-        predictions[1] = (x, y, z) -> y;
-        predictions[2] = (x, y, z) -> z;
-        predictions[3] = (x, y, z) -> (x + y - z);
-        predictions[4] = (x, y, z) -> (x + (y - z) / 2);
-        predictions[5] = (x, y, z) -> (y + (x - z) / 2);
-        predictions[6] = (x, y, z) -> ((x + y) / 2);
+        func[0] = (x, y, z) -> x;
+        func[1] = (x, y, z) -> y;
+        func[2] = (x, y, z) -> z;
+        func[3] = (x, y, z) -> (x + y - z);
+        func[4] = (x, y, z) -> (x + (y - z) / 2);
+        func[5] = (x, y, z) -> (y + (x - z) / 2);
+        func[6] = (x, y, z) -> ((x + y) / 2);
+        func[6] = (x, y, z) -> {
+            final int max = Math.max(y, z);
+            if (x >= max) return max;
+            final int min = Math.min(y, z);
+            return (x <= min) ? min : (z + y - x);
+        };
     }
 
     private static int mod256(int x) {
         int value = x % 256;
         return value < 0 ? value & 0xFF : value;
-    }
-
-    @Override
-    public BufferedImage getBufferedImage(String filepath) throws IOException {
-        final byte[] bytes = readFileAsBytes(filepath);
-        return decode(bytes);
     }
 
     @Override
@@ -53,7 +51,8 @@ public class TGAImageDataCollector extends TGAImageReader {
         if (isUncompressed && buff[16] == 0x20) { // uncompressed RGBA
             while (n > 0) {
                 int b = read(buff), g = read(buff), r = read(buff), a = read(buff);
-                this.increaseOccurrences(b, g, r);
+                this.increaseRGBOccurrences(b, g, r);
+                this.increaseAllSign(b, g, r);
                 this.addPixel(b, g, r);
                 pixels[idx++] = (a << 24) | (r << 16) | (g << 8) | b;
                 n -= 1;
@@ -61,7 +60,8 @@ public class TGAImageDataCollector extends TGAImageReader {
         } else if (isUncompressed && buff[16] == 0x18) {  // uncompressed RGB
             while (n > 0) {
                 int b = read(buff), g = read(buff), r = read(buff), a = 255;
-                this.increaseOccurrences(b, g, r);
+                this.increaseRGBOccurrences(b, g, r);
+                this.increaseAllSign(b, g, r);
                 this.addPixel(b, g, r);
                 pixels[idx++] = (a << 24) | (r << 16) | (g << 8) | b;
                 n -= 1;
@@ -72,22 +72,29 @@ public class TGAImageDataCollector extends TGAImageReader {
         return pixels;
     }
 
-    private void increaseOccurrences(int b, int g, int r) {
+    private void increaseRGBOccurrences(int b, int g, int r) {
         this.imageStats.increaseBlue(b);
         this.imageStats.increaseGreen(g);
         this.imageStats.increaseRed(r);
+    }
+
+    private void increaseAllSign(int b, int g, int r) {
         this.imageStats.increaseSigns(r, g, b);
     }
 
-    private void addPixel(int b, int g, int r){
+    private void addPixel(int b, int g, int r) {
         this.imageStats.storePixel(r, g, b);
+        this.imageStats.increaseAllSignOccurrences(3);
     }
 
     public void printColorsEntropy() {
-        System.out.println(String.format("%-18s", "File entropy") + countEntropy(this.imageStats.getAllSignOccurrences(), this.imageStats.getSigns()));
         System.out.println(String.format("%-18s", "Red entropy") + countEntropy(this.imageStats.getRedOccurrences(), this.imageStats.getRed()));
         System.out.println(String.format("%-18s", "Blue entropy") + countEntropy(this.imageStats.getBlueOccurrences(), this.imageStats.getBlue()));
-        System.out.println(String.format("%-18s", "Green entropy") + countEntropy(this.imageStats.getGreenOccurrences(), this.imageStats.getGreen()));
+        System.out.println(String.format("%-18s", "Green entropy") + countEntropy(this.imageStats.getGreenOccurrences(), this.imageStats.getGreen()) + "\n\n");
+    }
+
+    public void printFileEntropy() {
+        System.out.println(String.format("%-18s", "File entropy") + countEntropy(this.imageStats.getAllSignOccurrences(), this.imageStats.getSigns()));
     }
 
     /**
@@ -100,31 +107,52 @@ public class TGAImageDataCollector extends TGAImageReader {
     public void prediction() {
 
         final ImageStats.Pixel[][] pixels = this.imageStats.getPixels();
-        for (ThreeArgsFunction<Integer> func : predictions) {
+        double[] entropyResults = new double[4];// red green blue all
+        int[] bestFunctions = new int[4];// red green blue all
+
+        for (int f_idx = 0; f_idx < func.length; f_idx++) {
+            ThreeArgsFunction<Integer> func = this.func[f_idx];
             this.imageStats.initRGBArrays();
+            this.imageStats.initSignArray();
             for (int i = 0; i < pixels.length; i++) {
-                for (int j = 0; j < pixels[0].length; j++) {
+                for (int j = 0; j < pixels[i].length; j++) {
                     final ImageStats.Pixel pixelX = pixels[i][j];
 
-                    final ImageStats.Pixel pixelA = getAdjacentPixels(i - 1, j, pixels);
+                    final ImageStats.Pixel pixelA = getAdjacentPixels(i, j - 1, pixels);
+                    final ImageStats.Pixel pixelB = getAdjacentPixels(i - 1, j, pixels);
                     final ImageStats.Pixel pixelC = getAdjacentPixels(i - 1, j - 1, pixels);
-                    final ImageStats.Pixel pixelB = getAdjacentPixels(i - 1, j - 1, pixels);
 
                     int predictedRed = mod256(pixelX.r - func.apply(pixelC.r, pixelB.r, pixelA.r));
                     int predictedGreen = mod256(pixelX.g - func.apply(pixelC.g, pixelB.g, pixelA.g));
                     int predictedBlue = mod256(pixelX.b - func.apply(pixelC.b, pixelB.b, pixelA.b));
 
-                    this.increaseOccurrences(predictedBlue, predictedGreen, predictedRed);
+                    this.increaseRGBOccurrences(predictedBlue, predictedGreen, predictedRed);
 
                 }
             }
-            System.out.println("\n");
+            double[] current = new double[]{
+                    countEntropy(this.imageStats.getRedOccurrences(), this.imageStats.getRed())
+                    , countEntropy(this.imageStats.getBlueOccurrences(), this.imageStats.getBlue())
+                    , countEntropy(this.imageStats.getGreenOccurrences(), this.imageStats.getGreen())
+                    , countEntropy(this.imageStats.getAllSignOccurrences(), this.imageStats.getSigns())};
+
+            this.updateBestResults(f_idx, current, entropyResults, bestFunctions);
+
             printColorsEntropy();
         }
     }
 
     private ImageStats.Pixel getAdjacentPixels(int i, int j, ImageStats.Pixel[][] pixels) {
         return (i >= 0 && i <= pixels.length && j >= 0 && j <= pixels[0].length) ? pixels[i][j] : new ImageStats.Pixel(0, 0, 0);
+    }
+
+    private void updateBestResults(int f_idx, double[] entries, double[] current, int[] bestFunctions) {
+        for (int i = 0; i < entries.length; i++) {
+            if (entries[i] < current[i]) {
+                entries[i] = current[i];
+                bestFunctions[i] = f_idx;
+            }
+        }
     }
 
     public static double countEntropy(long allSymbolsOccurrences, int[] symbolsData) {
