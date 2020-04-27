@@ -1,7 +1,7 @@
 import java.util.Objects;
 
 public class TGAImageDataCollector extends TGAImageReader {
-    private final ThreeArgsFunction<Integer>[] func = new ThreeArgsFunction[7];
+    private final ThreeArgsFunction<Integer>[] func = new ThreeArgsFunction[8];
     private final ImageStats imageStats;
 
     public TGAImageDataCollector(ImageStats imageStats) {
@@ -22,7 +22,7 @@ public class TGAImageDataCollector extends TGAImageReader {
         func[4] = (x, y, z) -> (x + (y - z) / 2);
         func[5] = (x, y, z) -> (y + (x - z) / 2);
         func[6] = (x, y, z) -> ((x + y) / 2);
-        func[6] = (x, y, z) -> {
+        func[7] = (x, y, z) -> {
             final int max = Math.max(y, z);
             if (x >= max) return max;
             final int min = Math.min(y, z);
@@ -100,7 +100,6 @@ public class TGAImageDataCollector extends TGAImageReader {
             for (int i = 0; i < pixels.length; i++) {
                 for (int j = 0; j < pixels[i].length; j++) {
                     final ImageStats.Pixel pixelX = pixels[i][j];
-
                     final ImageStats.Pixel pixelA = getAdjacentPixels(i, j - 1, pixels);
                     final ImageStats.Pixel pixelB = getAdjacentPixels(i - 1, j, pixels);
                     final ImageStats.Pixel pixelC = getAdjacentPixels(i - 1, j - 1, pixels);

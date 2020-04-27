@@ -68,6 +68,12 @@ class TGAImageReader {
         }};
     }
 
+    /**
+     * @param width image width
+     * @param height image height
+     * @param buff buffered image array
+     * @return pixel array constructed as RGB(A) array
+     */
     protected int[] createArrayWithPixels(int width, int height, byte[] buff) {
         int n = width * height;
         int[] pixels = new int[n];
