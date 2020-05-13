@@ -35,6 +35,9 @@
         <module>LaboratorySecond</module>
         <module>LaboratoryThird</module>
         <module>LaboratoryFourth</module>
+        <module>LaboratoryFifth</module>
+        <module>LaboratorySixth</module>
+        <module>LaboratorySeventh</module>
     </modules>
 
     <build>

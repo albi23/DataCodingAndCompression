@@ -43,7 +43,6 @@ public class TGAImageDataCollector extends TGAImageReader {
 
         int[] pixels = new int[n];
         int idx = 0;
-        n -= TGA_IMAGE_FOOTER; // Skip footer data
         if (n < 0)
             throw new IllegalArgumentException(String.format("Image file size is to small, min  is %d", TGA_IMAGE_FOOTER + TGA_IMAGE_HEADER));
 
@@ -97,16 +96,16 @@ public class TGAImageDataCollector extends TGAImageReader {
             ThreeArgsFunction<Integer> func = this.func[f_idx];
             this.imageStats.initRGBArrays();
             this.imageStats.initSignArray();
-            for (int i = 0; i < pixels.length; i++) {
-                for (int j = 0; j < pixels[i].length; j++) {
+            for (int i = pixels.length-1; i >=0 ; i--) {
+                for (int j = pixels[i].length-1; j >=0; j--) {
                     final ImageStats.Pixel pixelX = pixels[i][j];
-                    final ImageStats.Pixel pixelA = getAdjacentPixels(i, j - 1, pixels);
-                    final ImageStats.Pixel pixelB = getAdjacentPixels(i - 1, j, pixels);
+                    final ImageStats.Pixel pixelA = getAdjacentPixels(i - 1, j, pixels);
+                    final ImageStats.Pixel pixelB = getAdjacentPixels(i, j - 1, pixels);
                     final ImageStats.Pixel pixelC = getAdjacentPixels(i - 1, j - 1, pixels);
 
-                    int predictedRed = mod256(pixelX.r - func.apply(pixelC.r, pixelB.r, pixelA.r));
-                    int predictedGreen = mod256(pixelX.g - func.apply(pixelC.g, pixelB.g, pixelA.g));
-                    int predictedBlue = mod256(pixelX.b - func.apply(pixelC.b, pixelB.b, pixelA.b));
+                    int predictedRed = mod256( func.apply(pixelB.r, pixelA.r, pixelC.r)- pixelX.r);
+                    int predictedGreen = mod256( func.apply(pixelB.g, pixelA.g, pixelC.g)- pixelX.g);
+                    int predictedBlue = mod256( func.apply(pixelB.b, pixelA.b, pixelC.b)-pixelX.b);
 
                     this.increaseRGBOccurrences(predictedBlue, predictedGreen, predictedRed);
                     this.increaseAllSign(predictedBlue, predictedGreen, predictedRed);
@@ -119,17 +118,16 @@ public class TGAImageDataCollector extends TGAImageReader {
                     , countEntropy(this.imageStats.getAllSignOccurrences(), this.imageStats.getSigns())};
 
             this.updateBestResults(f_idx, current, entropyResults, bestFunctions);
-//            printFileEntropy();
-//            printColorsEntropy();
+            printColorsEntropy();
         }
         printBestResults(entropyResults, bestFunctions);
     }
 
     private ImageStats.Pixel getAdjacentPixels(int i, int j, ImageStats.Pixel[][] pixels) {
-        return (i >= 0 && i <= pixels.length && j >= 0 && j <= pixels[0].length) ? pixels[i][j] : new ImageStats.Pixel(0, 0, 0);
+        return (i >= 0 && i < pixels.length && j >= 0 && j < pixels[i].length) ? pixels[i][j] : new ImageStats.Pixel(0, 0, 0);
     }
 
-    private void updateBestResults(int f_idx,  double[] current, double[] entropyResults, int[] bestFunctions) {
+    private void updateBestResults(int f_idx, double[] current, double[] entropyResults, int[] bestFunctions) {
         for (int i = 0; i < entropyResults.length; i++) {
             if (current[i] < entropyResults[i]) {
                 entropyResults[i] = current[i];
@@ -162,8 +160,8 @@ public class TGAImageDataCollector extends TGAImageReader {
         System.out.println(String.format("%-18s", "File entropy") + countEntropy(this.imageStats.getAllSignOccurrences(), this.imageStats.getSigns()));
     }
 
-    public void printBestResults(double[] bestResults, int[] functions){
-        String response= "\u001b[38;5;205m| | | | | |\n".concat("| |C|B|D| |\n").concat("| |A|X| | |\n")
+    public void printBestResults(double[] bestResults, int[] functions) {
+        String response = "\u001b[38;5;205m| | | | | |\n".concat("| |C|B|D| |\n").concat("| |A|X| | |\n")
                 .concat("| | | | | |\u001b[0m\n\n").concat("Predictors numeration:\n").concat("0. A\n").concat("1. B\n")
                 .concat("2. C\n").concat("3. A+B-C\n").concat("4. A+(B-C)/2\n").concat("5. B+(A-C)/2\n")
                 .concat("6. (A+B)/2\n").concat("7. New standard\n")
