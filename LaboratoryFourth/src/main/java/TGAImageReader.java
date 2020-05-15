@@ -20,6 +20,8 @@ class TGAImageReader {
      */
     protected static final int TGA_IMAGE_FOOTER = 26;
     protected static final int TGA_IMAGE_HEADER = 12;
+    protected static final int RIGHT_ORIGIN = 0x10;
+    protected static final int UPPER_ORIGIN = 0x20;
     private static int offset = 0;
 
     public TGAImageReader() { }
