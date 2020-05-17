@@ -1,9 +1,11 @@
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
+
+/**
+ * @Author Albert Piekielny
+ *
+ */
 public class MainQuantization {
 
     /**
@@ -12,17 +14,16 @@ public class MainQuantization {
      */
     public static void main(String... args) throws IOException {
 
-
-        if (args.length != 3){
+        if (args.length != 3) {
             System.err.println("Usage: java Main MainQuantization.tga <inputFile.tga> <outputFileName> colors_number\n" +
                     "      colors_number is between 0 and 24");
             System.exit(1);
         }
-        if (isCorrectExtension(args[0])){
-            TruevisionTargaImageEncoder ttie = new TruevisionTargaImageEncoder(args[0], Integer.parseInt(args[2]));
-            final BufferedImage bufferedImage = ttie.getBufferedImage();
-            ImageIO.write(bufferedImage, "TGA", new File("image1_test.tga"));
+        if (isCorrectExtension(args[0])) {
+            TruevisionTargaImageEncoder ttie = new TruevisionTargaImageEncoder(args[0], args[1], Integer.parseInt(args[2]));
+            ttie.photoQuantizationProcess();
         }
+
     }
 
     public static boolean isCorrectExtension(String filename) {

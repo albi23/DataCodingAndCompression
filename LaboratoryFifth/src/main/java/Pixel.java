@@ -1,11 +1,12 @@
+/**
+ * @Author Albert Piekielny
+ *
+ */
 public class Pixel {
 
-    private double red;
-    private double green;
-    private double blue;
-
-    protected Pixel() {
-    }
+    private final double red;
+    private final double green;
+    private final double blue;
 
     public Pixel(double red, double green, double blue) {
         this.red = checkCorrectRange(red, Colors.RED);
@@ -20,18 +21,19 @@ public class Pixel {
         return value;
     }
 
-    public void setRed(double red) {
-        this.red = checkCorrectRange(red, Colors.RED);
+    public double getDistanceToPixel(Pixel pixel) {
+        return Math.pow(this.red - pixel.getRed(), 2.0) +
+                Math.pow(this.green - pixel.getGreen(), 2.0) +
+                Math.pow(this.blue - pixel.getBlue(), 2.0);
     }
 
-    public void setGreen(double green) {
-        this.green = checkCorrectRange(green, Colors.GREEN);
+    public Pixel getDisorderedPixel(double epsilonValue) {
+        return new Pixel(this.red * epsilonValue, this.green * epsilonValue, this.blue * epsilonValue);
     }
 
-    public void setBlue(double blue) {
-        this.blue = checkCorrectRange(blue, Colors.BLUE);
+    public double squaredVectorLength() {
+        return Math.pow(red, 2.0) + Math.pow(green, 2.0) + Math.pow(blue, 2.0);
     }
-
     public double getRed() {
         return red;
     }
@@ -42,23 +44,6 @@ public class Pixel {
 
     public double getBlue() {
         return blue;
-    }
-
-//    public double getDistanceToPixel(Pixel pixel) {
-//        return (pixel != null) ? Math.sqrt(
-//                Math.pow(this.red - pixel.getRed(), 2.0) +
-//                        Math.pow(this.green - pixel.getGreen(), 2.0) +
-//                        Math.pow(this.blue - pixel.getBlue(), 2.0)) : -1;
-//    }
-
-    public double getDistanceToPixel(Pixel pixel) {
-        return Math.pow(this.red - pixel.getRed(), 2.0) +
-                Math.pow(this.green - pixel.getGreen(), 2.0) +
-                Math.pow(this.blue - pixel.getBlue(), 2.0);
-    }
-
-    public Pixel getDisorderedPixel(double epsilonValue) {
-        return new Pixel(this.red * epsilonValue, this.green * epsilonValue, this.blue * epsilonValue);
     }
 
     @Override

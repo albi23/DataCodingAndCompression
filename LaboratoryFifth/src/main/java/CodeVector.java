@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @Author Albert Piekielny
+ */
 public class CodeVector {
 
     private Pixel representative;
@@ -9,11 +12,6 @@ public class CodeVector {
     public CodeVector(Pixel representative) {
         this.representative = representative;
         this.nearestMembers = new ArrayList<>();
-    }
-
-    public CodeVector(Pixel representative, List<Pixel> nearestMembers) {
-        this.representative = representative;
-        this.nearestMembers = nearestMembers;
     }
 
     public void clearMember() {
