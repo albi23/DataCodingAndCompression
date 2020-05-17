@@ -2,6 +2,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.function.BiFunction;
 
 
 /**
@@ -113,6 +114,17 @@ class TGAImageReader {
         return pixels;
     }
 
+    protected BiFunction<Integer, Integer, Integer> getDefiningLayoutFunction(int descriptor, int width, int height) {
+        BiFunction<Integer, Integer, Integer> function = null;
+        if ((descriptor & RIGHT_ORIGIN) != 0) {
+            function = ((descriptor & UPPER_ORIGIN) != 0) ? (i, j) -> (width * i + (width - j - 1)) : (i, j) -> (width * (height - i - 1) + (width - j - 1));
+            // var () ?  // UpperRight :  // LowerRight
+        } else {
+            function = (((descriptor & UPPER_ORIGIN) != 0)) ? (i, j) -> (width * i + j) : (i, j) -> (width * (height - i - 1) + j);
+            // var () ?  // UpperLeft :  // LowerLeft
+        }
+        return function;
+    }
     protected static int definePixelsAsRGB(byte[] buff) {
         int b = read(buff);
         int g = read(buff);

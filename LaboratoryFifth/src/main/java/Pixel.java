@@ -44,11 +44,21 @@ public class Pixel {
         return blue;
     }
 
+//    public double getDistanceToPixel(Pixel pixel) {
+//        return (pixel != null) ? Math.sqrt(
+//                Math.pow(this.red - pixel.getRed(), 2.0) +
+//                        Math.pow(this.green - pixel.getGreen(), 2.0) +
+//                        Math.pow(this.blue - pixel.getBlue(), 2.0)) : -1;
+//    }
+
     public double getDistanceToPixel(Pixel pixel) {
-        return (pixel != null) ? Math.sqrt(
-                Math.pow(this.red - pixel.getRed(), 2.0) +
-                        Math.pow(this.green - pixel.getGreen(), 2.0) +
-                        Math.pow(this.blue - pixel.getBlue(), 2.0)) : -1;
+        return Math.pow(this.red - pixel.getRed(), 2.0) +
+                Math.pow(this.green - pixel.getGreen(), 2.0) +
+                Math.pow(this.blue - pixel.getBlue(), 2.0);
+    }
+
+    public Pixel getDisorderedPixel(double epsilonValue) {
+        return new Pixel(this.red * epsilonValue, this.green * epsilonValue, this.blue * epsilonValue);
     }
 
     @Override
