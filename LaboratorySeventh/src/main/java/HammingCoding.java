@@ -3,6 +3,9 @@ import com.sun.istack.internal.NotNull;
 import java.io.*;
 import java.util.Objects;
 
+/**
+ * Base class for those covered by hamming encoding
+ **/
 public abstract class HammingCoding implements StreamManager {
 
     protected String filepath;
@@ -14,8 +17,8 @@ public abstract class HammingCoding implements StreamManager {
     }
 
     public final void manageFiles() throws IOException {
-        try (InputStream streamInstance = (InputStream) getFirstStreamInstance();
-             OutputStream secondStreamInstance = (OutputStream) getSecondStreamInstance()) {
+        try (Closeable streamInstance =  getFirstStreamInstance();
+             Closeable secondStreamInstance =  getSecondStreamInstance()) {
             manageFiles(streamInstance, secondStreamInstance);
         } catch (FileNotFoundException ex) {
             throw new RuntimeException(ex.getMessage());

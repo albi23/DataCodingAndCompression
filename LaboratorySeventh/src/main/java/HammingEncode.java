@@ -4,6 +4,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+/**
+ * @Author Albert Piekielny
+ *
+ * Class responsible for encoding the <code>inFilePath</code> file to the <code>outFilePath</code> output file
+ */
 public class HammingEncode extends HammingCoding {
 
 

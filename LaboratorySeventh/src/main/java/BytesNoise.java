@@ -5,6 +5,10 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Random;
 
+/**
+ * @Author Albert Piekielny
+ * The class responsible for entering a random bit disorder into a file with a defined probability
+ */
 public class BytesNoise extends HammingCoding {
 
     private final double probability;
@@ -26,7 +30,7 @@ public class BytesNoise extends HammingCoding {
 
     private int[] addDisorder(int[] valueRepresentation) {
         for (int i = 0, length = valueRepresentation.length; i < length; i++) {
-            if (rand.nextDouble() > this.probability) {
+            if (rand.nextDouble() <= this.probability) {
                 valueRepresentation[i] = valueRepresentation[i] ^ 1;
             }
         }

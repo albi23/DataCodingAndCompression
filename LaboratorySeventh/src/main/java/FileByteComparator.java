@@ -1,5 +1,10 @@
 import java.io.*;
 
+/**
+ *  @Author Albert Piekielny
+ *
+ * Class responsible for comparing two input files in terms of 4-bit blocks
+ */
 public class FileByteComparator extends HammingCoding {
 
     private int differences;
@@ -19,11 +24,11 @@ public class FileByteComparator extends HammingCoding {
     }
 
     private boolean isLeadingBitsDifference(int bitValue1, int bitValue2) {
-        return bitValue1 >> 4 == bitValue2 >> 4;
+        return bitValue1 >> 4 != bitValue2 >> 4;
     }
 
     private boolean isTrailingBitsDifference(int bitValue1, int bitValue2) {
-        return bitValue1 << 28 == bitValue2 << 28;
+        return bitValue1 << 28 != bitValue2 << 28;
     }
 
     @Override
